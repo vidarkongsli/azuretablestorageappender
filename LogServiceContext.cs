@@ -13,19 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. 
  */
+
+using System.Data.Services.Client;
 using System.Linq;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
 
 namespace Demo.Log4Net.Azure
 {
-    internal class LogServiceContext : TableServiceContext
+    public class LogServiceContext : TableServiceContext
     {
         public LogServiceContext(string baseAddress, StorageCredentials credentials) : base(baseAddress, credentials) { }
         internal void Log(LogEntry logEntry)
         {
             AddObject("LogEntries", logEntry);
-            SaveChanges();
+            BeginSaveChanges(SaveChangesOptions.Batch, null, null);
         }
 
         public IQueryable<LogEntry> LogEntries

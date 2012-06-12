@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. 
  */
-using System;
 using System.Data.Services.Client;
 using log4net.Appender;
 using log4net.Core;
@@ -41,30 +40,26 @@ namespace Demo.Log4Net.Azure
 
         protected override void Append(LoggingEvent loggingEvent)
         {
-            Action doWriteToLog = () =>
+            try
             {
-                try
+                _ctx.Log(new LogEntry
                 {
-                    _ctx.Log(new LogEntry
-                    {
-                        RoleInstance = RoleEnvironment.CurrentRoleInstance.Id,
-                        DeploymentId = RoleEnvironment.DeploymentId,
-                        Timestamp = loggingEvent.TimeStamp,
-                        Message = loggingEvent.RenderedMessage,
-                        Level = loggingEvent.Level.Name,
-                        LoggerName = loggingEvent.LoggerName,
-                        Domain = loggingEvent.Domain,
-                        ThreadName = loggingEvent.ThreadName,
-                        Identity = loggingEvent.Identity
-                    });
-                }
-                catch (DataServiceRequestException e)
-                {
-                    ErrorHandler.Error(string.Format("{0}: Could not write log entry to {1}: {2}",
-                        GetType().AssemblyQualifiedName, _tableEndpoint, e.Message));
-                }
-            };
-            doWriteToLog.BeginInvoke(null, null);
+                    RoleInstance = RoleEnvironment.CurrentRoleInstance.Id,
+                    DeploymentId = RoleEnvironment.DeploymentId,
+                    Timestamp = loggingEvent.TimeStamp,
+                    Message = loggingEvent.RenderedMessage,
+                    Level = loggingEvent.Level.Name,
+                    LoggerName = loggingEvent.LoggerName,
+                    Domain = loggingEvent.Domain,
+                    ThreadName = loggingEvent.ThreadName,
+                    Identity = loggingEvent.Identity
+                });
+            }
+            catch (DataServiceRequestException e)
+            {
+                ErrorHandler.Error(string.Format("{0}: Could not write log entry to {1}: {2}",
+                    GetType().AssemblyQualifiedName, _tableEndpoint, e.Message));
+            }
         }
     }
 }
